@@ -10,15 +10,18 @@ import { User } from '../models/user';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
-  styleUrl: './login.css',
+  styleUrls: ['./login.css'], 
 })
+
+//Added error tracking and feedback variables
 export class LoginComponent {
   public formError: string = '';
-  submitted = false;
-  credentials = {
-    name: '',
+  // prevents duplicate logins and adds UX clarity
+  public isLoading: boolean = false; 
+  public credentials = {
     email: '',
-    password: '',
+    //Removed "name" field; authentication should rely only on email + password
+    password: '', 
   };
 
   constructor(
@@ -26,40 +29,55 @@ export class LoginComponent {
     private authenticationService: AuthenticationService
   ) {}
 
-  ngOnInit(): void {}
-
-  public onLoginSubmit(): void {
+  //Hardened login handler
+   public async onLoginSubmit(): Promise<void> {
+    // Reset errors each submission
     this.formError = '';
-    if (
-      !this.credentials.email ||
-      !this.credentials.password ||
-      !this.credentials.name
-    ) {
-      this.formError = 'All fields are required, please try again';
-      this.router.navigateByUrl('#'); // Return to login page
-    } else {
-      this.doLogin();
-    }
-  }
 
-  private doLogin(): void {
-    let newUser = {
-      name: this.credentials.name,
-      email: this.credentials.email,
-    } as User;
-    // console.log('LoginComponent::doLogin');
-    // console.log(this.credentials);
-    this.authenticationService.login(newUser, this.credentials.password);
-    if (this.authenticationService.isLoggedIn()) {
-      // console.log('Router::Direct');
-      this.router.navigate(['']);
-    } else {
-      var timer = setTimeout(() => {
-        if (this.authenticationService.isLoggedIn()) {
-          // console.log('Router::Pause');
-          this.router.navigate(['']);
-        }
-      }, 3000);
+    // Basic field presence validation
+    if (!this.credentials.email || !this.credentials.password) {
+      this.formError = 'Email and password are required.';
+      return; // stop execution early
+    }
+
+    // Minimal client-side validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(this.credentials.email)) {
+      this.formError = 'Please enter a valid email address.';
+      return;
+    }
+
+    if (this.credentials.password.length < 8) {
+      // Encourage stronger passwords even at login 
+      this.formError = 'Password must be at least 8 characters long.';
+      return;
+    }
+
+    // loading flag to block repeated submissions
+    this.isLoading = true;
+
+    try {
+  
+      // Ensures we know whether login succeeded or failed
+      const success = await this.authenticationService.login(
+        { email: this.credentials.email, name: '' },
+        this.credentials.password
+      );
+
+      if (success) {
+        // Redirect safely after successful authentication
+        this.router.navigate(['/dashboard']);
+      } else {
+        // Generic error message prevents account enumeration
+        this.formError = 'Invalid email or password.';
+      }
+    } catch (err) {
+      // Catch unexpected errors (network, 500, etc.)
+      console.error('Login error:', err);
+      this.formError = 'Login failed. Please try again later.';
+    } finally {
+      // Reset loading indicator whether login succeeded or failed
+      this.isLoading = false;
     }
   }
 }

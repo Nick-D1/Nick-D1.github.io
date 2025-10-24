@@ -543,3 +543,64 @@ hr {
 #connect a.googleplus:hover {
 	background-position: 0 -197px;
 }
+
+
+/** Feedback Added for CS499 **/
+#feedback form {
+  float: left;
+  color: #5a4535;
+  width: 500px;
+  border: 1px solid #5a4535;
+  padding: 20px;
+  margin: 20px auto;
+  background: #fff;
+  border-radius: 4px;
+}
+
+#feedback form table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#feedback form table td {
+  padding-bottom: 10px;
+}
+
+#feedback table td:first-child {
+  font-size: 14px;
+  line-height: 30px;
+  width: 150px;
+  text-transform: uppercase;
+}
+
+#feedback table td.txtarea {
+  vertical-align: top;
+}
+
+#feedback form input,
+#feedback form textarea {
+  width: 100%;
+  border: 1px solid #5a4535;
+  border-radius: 2px;
+  padding: 6px;
+  font-family: inherit;
+}
+
+#feedback textarea {
+  height: 120px;
+  resize: none;
+}
+
+#feedback input.btn {
+  background: url(../images/btn-send.png) no-repeat -70px 0;
+  cursor: pointer;
+  height: 26px;
+  width: 60px;
+  border: 0;
+  padding: 0;
+  margin: 10px 0 0;
+}
+
+#feedback input.btn:hover {
+  background-position: 0 0;
+}
